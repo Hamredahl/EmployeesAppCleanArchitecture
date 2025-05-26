@@ -2,51 +2,28 @@
 
 namespace EmployeesApp.Application.Employees;
 
-public class EmployeeService : IEmployeeService
+public class EmployeeService(IEmployeeRepository employeeRepository) : IEmployeeService
 {
-    readonly List<Employee> employees =
-    [
-        new Employee()
-        {
-            Id = 562,
-            Name = "Anders Hejlsberg",
-            Email = "Anders.Hejlsberg@outlook.com",
-        },
-        new Employee()
-        {
-            Id = 62,
-            Name = "Kathleen Dollard",
-            Email = "k.d@outlook.com",
-        },
-        new Employee()
-        {
-            Id = 15662,
-            Name = "Mads Torgersen",
-            Email = "Admin.Torgersen@outlook.com",
-        },
-        new Employee()
-        {
-            Id = 52,
-            Name = "Scott Hanselman",
-            Email = "s.h@outlook.com",
-        },
-        new Employee()
-        {
-            Id = 563,
-            Name = "Jon Skeet",
-            Email = "j.s@outlook.com",
-        },
-    ];
-
     public void Add(Employee employee)
     {
-        employee.Id = employees.Count < 0 ? 1 : employees.Max(e => e.Id) + 1;
-        employees.Add(employee);
+        if (employee == null) throw new ArgumentException($@"{nameof(employee)} must not be null", nameof(employee));
+        employeeRepository.Add(employee);
     }
 
-    public Employee[] GetAll() => [.. employees.OrderBy(e => e.Name)];
+    public Employee[] GetAll()
+    {
+        return employeeRepository
+            .GetAll()
+            .OrderBy(e => e.Name)
+            .ToArray();
+    }
 
 
-    public Employee GetById(int id) => employees
-        .Single(e => e.Id == id);
+    public Employee? GetById(int id)
+    {
+        if (id <= 0) throw new ArgumentException($@"Id must be a positive value", nameof(id));
+        var ret = employeeRepository.GetById(id);
+        if (ret == null) throw new Exception($@"Unable to find company with {nameof(Employee.Id)} {id}");
+        return ret;
+    }
 }

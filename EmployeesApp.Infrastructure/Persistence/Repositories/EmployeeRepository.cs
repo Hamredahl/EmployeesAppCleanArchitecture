@@ -45,7 +45,8 @@ public class EmployeeRepository : IEmployeeRepository
     ];
     public void Add(Employee employee)
     {
-        throw new NotImplementedException();
+        employee.Id = employees.Count < 0 ? 1 : employees.Max(e => e.Id) + 1;
+        employees.Add(employee);
     }
 
     public Employee[] GetAll() => employees
